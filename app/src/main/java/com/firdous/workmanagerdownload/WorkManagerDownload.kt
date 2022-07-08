@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.*
+import androidx.work.CoroutineWorker
 import kotlinx.coroutines.delay
 
 class WorkManagerDownload(context: Context, parameters: WorkerParameters) :
@@ -18,6 +19,8 @@ class WorkManagerDownload(context: Context, parameters: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         return try {
+            val start = inputData.getInt("start",0)
+            val end = inputData.getInt("end",0)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createChannel()
             }
@@ -25,7 +28,7 @@ class WorkManagerDownload(context: Context, parameters: WorkerParameters) :
             notificationBuilder.addAction(android.R.drawable.ic_delete, "Cancel", intent)
             val notification = notificationBuilder.build()
             setForeground(ForegroundInfo(NOTIFICATION_ID, notification))
-            for (i in 0..100) {
+            for (i in start..end) {
                 setProgress(workDataOf(progress to i))
                 showProgress(i)
                 delay(100L)
